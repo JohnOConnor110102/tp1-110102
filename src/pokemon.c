@@ -51,10 +51,11 @@ bool pokemon_son_iguales(pokemon_t *pokemon1, pokemon_t *pokemon2)
 	
 	if (pokemon1->id != pokemon2->id ||
 	    pokemon1->salud != pokemon2->salud ||
-	    strcmp(pokemon1->nombre, pokemon2->nombre) == STRINGS_DISTINTOS ||
-	    strcmp(pokemon1->nombre_entrenador, pokemon2->nombre_entrenador) ==
+	    strcmp(pokemon1->nombre, pokemon2->nombre) != STRINGS_DISTINTOS ||
+	    strcmp(pokemon1->nombre_entrenador, pokemon2->nombre_entrenador) !=
 		    STRINGS_DISTINTOS)
 		return false;
+		    
 
 	return true;
 }
@@ -77,12 +78,18 @@ char *pokemon_entrenador(pokemon_t *pokemon)
 
 size_t pokemon_salud(pokemon_t *pokemon)
 {
-	return 0;
+	if (pokemon == NULL)
+		return 0;
+	
+	return pokemon->salud;
 }
 
 size_t pokemon_id(pokemon_t *pokemon)
 {
-	return 0;
+	if (pokemon == NULL)
+		return 0;
+	
+	return pokemon->id;
 }
 
 void pokemon_destruir(pokemon_t *pkm)
