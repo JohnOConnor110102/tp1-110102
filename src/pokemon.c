@@ -29,6 +29,9 @@ pokemon_t *pokemon_crear_desde_string(const char *string)
 
 pokemon_t *pokemon_copiar(pokemon_t *poke)
 {
+	if (poke == NULL)
+		return NULL;
+	
 	pokemon_t *nuevo_poke = malloc(sizeof(pokemon_t));
 	if (nuevo_poke == NULL)
 		return NULL;
@@ -43,6 +46,9 @@ pokemon_t *pokemon_copiar(pokemon_t *poke)
 
 bool pokemon_son_iguales(pokemon_t *pokemon1, pokemon_t *pokemon2)
 {
+	if (pokemon1 == NULL || pokemon2 == NULL)
+		return NULL;
+	
 	if (pokemon1->id != pokemon2->id ||
 	    pokemon1->salud != pokemon2->salud ||
 	    strcmp(pokemon1->nombre, pokemon2->nombre) == STRINGS_DISTINTOS ||
@@ -55,12 +61,18 @@ bool pokemon_son_iguales(pokemon_t *pokemon1, pokemon_t *pokemon2)
 
 char *pokemon_nombre(pokemon_t *pokemon)
 {
-	return 0;
+	if (pokemon == NULL)
+		return NULL;
+	
+	return pokemon->nombre;
 }
 
 char *pokemon_entrenador(pokemon_t *pokemon)
 {
-	return 0;
+	if (pokemon == NULL)
+		return NULL;
+	
+	return pokemon->nombre_entrenador;
 }
 
 size_t pokemon_salud(pokemon_t *pokemon)
