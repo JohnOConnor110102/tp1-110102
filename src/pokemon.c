@@ -3,8 +3,22 @@
 #include <stdio.h>
 #include "pokemon_privado.h"
 
+#define FORMATO_LECTURA_STRING "%lud,%[^,],%lud,%s"
+const int CANT_CAMPOS_POKEMON_T = 4;
+
 pokemon_t *pokemon_crear_desde_string(const char *string)
 {
+	pokemon_t *poke_leido = malloc(sizeof(pokemon_t));
+	if (poke_leido == NULL)
+		return NULL;
+
+	int leido = sscanf(string, FORMATO_LECTURA_STRING, &(poke_leido->id),
+			   poke_leido->nombre, &(poke_leido->salud),
+			   poke_leido->nombre_entrenador);
+
+	if (leido == CANT_CAMPOS_POKEMON_T)
+		return poke_leido;
+
 	return NULL;
 }
 

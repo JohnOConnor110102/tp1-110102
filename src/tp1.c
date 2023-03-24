@@ -14,7 +14,6 @@ struct _hospital_pkm_t {
 
 hospital_t *hospital_crear_desde_archivo(const char *nombre_archivo)
 {
-	printf("hola");
 	return NULL;
 }
 
