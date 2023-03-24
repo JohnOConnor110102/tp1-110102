@@ -6,6 +6,7 @@
 #define FORMATO_LECTURA_STRING "%lu,%[^,],%lu,%s"
 const int CANT_CAMPOS_POKEMON_T = 4;
 const int STRING_VACIO = 0;
+const int STRINGS_DISTINTOS = 0;
 
 pokemon_t *pokemon_crear_desde_string(const char *string)
 {
@@ -42,8 +43,12 @@ pokemon_t *pokemon_copiar(pokemon_t *poke)
 
 bool pokemon_son_iguales(pokemon_t *pokemon1, pokemon_t *pokemon2)
 {
-	if () {
-	}
+	if (pokemon1->id != pokemon2->id ||
+	    pokemon1->salud != pokemon2->salud ||
+	    strcmp(pokemon1->nombre, pokemon2->nombre) == STRINGS_DISTINTOS ||
+	    strcmp(pokemon1->nombre_entrenador, pokemon2->nombre_entrenador) ==
+		    STRINGS_DISTINTOS)
+		return false;
 
 	return true;
 }
