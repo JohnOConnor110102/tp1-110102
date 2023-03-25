@@ -23,7 +23,8 @@ pokemon_t *pokemon_crear_desde_string(const char *string)
 
 	if (leido == CANT_CAMPOS_POKEMON_T)
 		return poke_leido;
-
+		
+	free(poke_leido);
 	return NULL;
 }
 
@@ -93,5 +94,6 @@ size_t pokemon_id(pokemon_t *pokemon)
 
 void pokemon_destruir(pokemon_t *pkm)
 {
+	
 	free(pkm);
 }

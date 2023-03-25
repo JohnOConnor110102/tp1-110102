@@ -28,19 +28,30 @@ hospital_t *hospital_crear_desde_archivo(const char *nombre_archivo)
 		return NULL;
 
 	hospital_t *hospital = malloc(sizeof(hospital_t));
-	if (hospital == NULL)
+	if (hospital == NULL){
+		fclose(archivo);
 		return NULL;
-
+	}
 	hospital->pokemones = malloc(sizeof(char *));
-	if (hospital->pokemones == NULL)
+	if (hospital->pokemones == NULL){
+		fclose(archivo);
+		free(hospital);
 		return NULL;
+	}
 
 	char *linea_leida = malloc(MAX_CARACTERES_LINEA * sizeof(char));
-	if (linea_leida == NULL)
+	if (linea_leida == NULL){
+		fclose(archivo);
+		free(hospital->pokemones);
+		free(hospital);
 		return NULL;
-
+	}
 	int leido = fscanf(archivo, FORMATO_LECTURA_ARCHIVO, linea_leida);
 	if (leido != LINEA_LEIDA) {
+		fclose(archivo);
+		free(linea_leida);
+		free(hospital->pokemones);
+		free(hospital);
 		return NULL;
 	}
 
@@ -51,8 +62,13 @@ hospital_t *hospital_crear_desde_archivo(const char *nombre_archivo)
 	while (leido == LINEA_LEIDA) {
 		hospital->pokemones[i] =
 			pokemon_crear_desde_string(linea_leida);
-		if (hospital->pokemones[i] == NULL)
+		if (hospital->pokemones[i] == NULL) {
+			fclose(archivo);
+			free(linea_leida);
+			free(hospital->pokemones);
+			free(hospital);
 			return NULL;
+		}
 
 		cantidad_pokemon++;
 		cantidad_entrenadores++;
@@ -61,7 +77,13 @@ hospital_t *hospital_crear_desde_archivo(const char *nombre_archivo)
 			realloc(hospital->pokemones,
 				(cantidad_pokemon + 1) * sizeof(char *));
 		if (pokemones_aux == NULL) {
+			fclose(archivo);
+			free(linea_leida);
+			for (size_t i = 0; i < hospital->cantidad_pokemon; i++) {
+				free(hospital->pokemones[i]);
+			}
 			free(hospital->pokemones);
+			free(hospital);
 			return NULL;
 		}
 		hospital->pokemones = pokemones_aux;
@@ -69,6 +91,9 @@ hospital_t *hospital_crear_desde_archivo(const char *nombre_archivo)
 		i++;
 		leido = fscanf(archivo, FORMATO_LECTURA_ARCHIVO, linea_leida);
 	}
+
+	fclose(archivo);
+	free(linea_leida);
 
 	hospital->cantidad_entrenadores = cantidad_entrenadores;
 	hospital->cantidad_pokemon = cantidad_pokemon;
@@ -82,10 +107,13 @@ hospital_t *hospital_crear_desde_archivo(const char *nombre_archivo)
 				esta_ordenado = false;
 				pokemon_t *aux =
 					pokemon_copiar(hospital->pokemones[i]);
+				free(hospital->pokemones[i]);
 				hospital->pokemones[i] = pokemon_copiar(
 					hospital->pokemones[i + 1]);
+				free(hospital->pokemones[i + 1]);
 				hospital->pokemones[i + 1] =
 					pokemon_copiar(aux);
+				free(aux);
 			}
 		}
 	}
@@ -136,6 +164,7 @@ int hospital_aceptar_emergencias(hospital_t *hospital,
 			free(hospital->pokemones[i]);
 		}
 		free(hospital->pokemones);
+		free(hospital);
 		return ERROR;
 	}
 	hospital->pokemones = pokemones_aux;
