@@ -105,7 +105,18 @@ size_t hospital_a_cada_pokemon(hospital_t *hospital,
 			       bool (*funcion)(pokemon_t *p, void *aux),
 			       void *aux)
 {
-	return 0;
+	if (hospital == NULL || funcion == NULL)
+		return 0;
+	
+	size_t contador = 0;
+	for (int i = 0; i < hospital->cantidad_pokemon; i++){
+		contador++;
+		if (!funcion(hospital->pokemones[i], aux)){
+			return contador;
+		}
+	}
+
+	return contador;
 }
 
 int hospital_aceptar_emergencias(hospital_t *hospital,
