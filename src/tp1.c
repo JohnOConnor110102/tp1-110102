@@ -118,9 +118,8 @@ int hospital_aceptar_emergencias(hospital_t *hospital,
 pokemon_t *hospital_obtener_pokemon(hospital_t *hospital, size_t prioridad)
 {
 	for (int i = 0; i < hospital->cantidad_pokemon; i++) {
-		if (pokemon_id(hospital->pokemones[i]) == prioridad) {
+		if (i == prioridad)
 			return hospital->pokemones[i];
-		}
 	}
 
 	return NULL;
