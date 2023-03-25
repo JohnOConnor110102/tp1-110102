@@ -107,11 +107,11 @@ size_t hospital_a_cada_pokemon(hospital_t *hospital,
 {
 	if (hospital == NULL || funcion == NULL)
 		return 0;
-	
+
 	size_t contador = 0;
-	for (int i = 0; i < hospital->cantidad_pokemon; i++){
+	for (int i = 0; i < hospital->cantidad_pokemon; i++) {
 		contador++;
-		if (!funcion(hospital->pokemones[i], aux)){
+		if (!funcion(hospital->pokemones[i], aux)) {
 			return contador;
 		}
 	}
@@ -123,7 +123,47 @@ int hospital_aceptar_emergencias(hospital_t *hospital,
 				 pokemon_t **pokemones_ambulancia,
 				 size_t cant_pokes_ambulancia)
 {
-	return ERROR;
+	if (hospital == NULL || pokemones_ambulancia == NULL)
+		return ERROR;
+
+	pokemon_t **pokemones_aux =
+		realloc(hospital->pokemones,
+			(hospital->cantidad_pokemon + cant_pokes_ambulancia) *
+				sizeof(char *));
+
+	if (pokemones_aux == NULL) {
+		for (size_t i = 0; i < hospital->cantidad_pokemon; i++) {
+			free(hospital->pokemones[i]);
+		}
+		free(hospital->pokemones);
+		return ERROR;
+	}
+	hospital->pokemones = pokemones_aux;
+
+	for (size_t i = 0; i < cant_pokes_ambulancia; i++) {
+		int indice_a_insertar = 0;
+		int j = 0;
+		bool indice_determinado = false;
+		while (j < hospital->cantidad_pokemon && !indice_determinado) {
+			if (pokemon_salud(hospital->pokemones[j]) <=
+			    pokemon_salud(pokemones_ambulancia[i])) {
+				indice_a_insertar++;
+			} else {
+				indice_determinado = true;
+			}
+			j++;
+		}
+
+		for (size_t k = hospital->cantidad_pokemon;
+		     k > indice_a_insertar; k--) {
+			hospital->pokemones[k] = hospital->pokemones[k - 1];
+		}
+
+		hospital->pokemones[indice_a_insertar] = pokemones_ambulancia[i];
+		hospital->cantidad_pokemon++;
+	}
+
+	return EXITO;
 }
 
 pokemon_t *hospital_obtener_pokemon(hospital_t *hospital, size_t prioridad)
