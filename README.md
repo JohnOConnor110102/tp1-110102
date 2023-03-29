@@ -9,18 +9,18 @@
 - Para compilar:
 
 ```bash
-línea de compilación
+gcc src/*.c pruebas_chanutron.c -std=c99 -Wall -Wconversion -Wtype-limits -pedantic -Werror -O2 -g -o pruebas_chanutron
 ```
 
 - Para ejecutar:
 
 ```bash
-línea de ejecución
+./pruebas_chanutron
 ```
 
 - Para ejecutar con valgrind:
 ```bash
-línea con valgrind
+valgrind --leak-check=full --track-origins=yes --show-reachable=yes --error-exitcode=2 --show-leak-kinds=all --trace-children=yes ./pruebas_chanutron
 ```
 ---
 ##  Funcionamiento
