@@ -131,7 +131,7 @@ hospital_t *hospital_crear_desde_archivo(const char *nombre_archivo)
 		if (pokemones_aux == NULL) {
 			fclose(archivo);
 			free(linea_leida);
-			hospital_destruir(hospital_t *hospital);
+			hospital_destruir(hospital);
 			return NULL;
 		}
 		hospital->pokemones = pokemones_aux;
@@ -190,7 +190,7 @@ int hospital_aceptar_emergencias(hospital_t *hospital,
 				sizeof(char *));
 
 	if (pokemones_aux == NULL) {
-		hospital_destruir(hospital_t *hospital);
+		hospital_destruir(hospital);
 		return ERROR;
 	}
 	hospital->pokemones = pokemones_aux;
