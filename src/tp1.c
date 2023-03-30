@@ -19,8 +19,8 @@ struct _hospital_pkm_t {
 };
 
 void insertar_pokemones_ordenadamente(hospital_t *hospital,
-				 pokemon_t **pokemones_ambulancia,
-				 size_t cant_pokes_ambulancia)
+				      pokemon_t **pokemones_ambulancia,
+				      size_t cant_pokes_ambulancia)
 {
 	for (size_t i = 0; i < cant_pokes_ambulancia; i++) {
 		int indice_a_insertar = 0;
@@ -224,7 +224,8 @@ int hospital_aceptar_emergencias(hospital_t *hospital,
 	}
 	hospital->pokemones = pokemones_aux;
 
-	insertar_pokemones_ordenadamente(hospital, pokemones_ambulancia, cant_pokes_ambulancia);
+	insertar_pokemones_ordenadamente(hospital, pokemones_ambulancia,
+					 cant_pokes_ambulancia);
 	/*
 	for (size_t i = 0; i < cant_pokes_ambulancia; i++) {
 		int indice_a_insertar = 0;
