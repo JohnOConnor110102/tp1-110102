@@ -152,27 +152,7 @@ hospital_t *hospital_crear_desde_archivo(const char *nombre_archivo)
 	hospital->cantidad_pokemon = cantidad_pokemon;
 
 	ordenar_hospital(hospital);
-	/*
-	bool esta_ordenado = false;
-	while (!esta_ordenado) {
-		esta_ordenado = true;
-		for (int i = 0; i < (hospital->cantidad_pokemon) - 1; i++) {
-			if (pokemon_salud(hospital->pokemones[i + 1]) <
-			    pokemon_salud(hospital->pokemones[i])) {
-				esta_ordenado = false;
-				pokemon_t *aux =
-					pokemon_copiar(hospital->pokemones[i]);
-				free(hospital->pokemones[i]);
-				hospital->pokemones[i] = pokemon_copiar(
-					hospital->pokemones[i + 1]);
-				free(hospital->pokemones[i + 1]);
-				hospital->pokemones[i + 1] =
-					pokemon_copiar(aux);
-				free(aux);
-			}
-		}
-	}
-	*/
+
 	return hospital;
 }
 
@@ -226,31 +206,7 @@ int hospital_aceptar_emergencias(hospital_t *hospital,
 
 	insertar_pokemones_ordenadamente(hospital, pokemones_ambulancia,
 					 cant_pokes_ambulancia);
-	/*
-	for (size_t i = 0; i < cant_pokes_ambulancia; i++) {
-		int indice_a_insertar = 0;
-		int j = 0;
-		bool indice_determinado = false;
-		while (j < hospital->cantidad_pokemon && !indice_determinado) {
-			if (pokemon_salud(hospital->pokemones[j]) <=
-			    pokemon_salud(pokemones_ambulancia[i])) {
-				indice_a_insertar++;
-			} else {
-				indice_determinado = true;
-			}
-			j++;
-		}
-
-		for (size_t k = hospital->cantidad_pokemon;
-		     k > indice_a_insertar; k--) {
-			hospital->pokemones[k] = hospital->pokemones[k - 1];
-		}
-
-		hospital->pokemones[indice_a_insertar] =
-			pokemones_ambulancia[i];
-		hospital->cantidad_pokemon++;
-	}
-	*/
+	
 	return EXITO;
 }
 
