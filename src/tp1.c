@@ -206,7 +206,6 @@ int hospital_aceptar_emergencias(hospital_t *hospital,
 
 	insertar_pokemones_ordenadamente(hospital, pokemones_ambulancia,
 					 cant_pokes_ambulancia);
-	
 	return EXITO;
 }
 
