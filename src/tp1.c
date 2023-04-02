@@ -108,8 +108,8 @@ hospital_t *hospital_crear_desde_archivo(const char *nombre_archivo)
 	}
 
 	int i = 0;
-	size_t cantidad_pokemon = 0;
-	size_t cantidad_entrenadores = 0;
+	hospital->cantidad_entrenadores = 0;
+	hospital->cantidad_pokemon = 0;
 
 	while (leido == LINEA_LEIDA) {
 		hospital->pokemones[i] =
@@ -117,17 +117,16 @@ hospital_t *hospital_crear_desde_archivo(const char *nombre_archivo)
 		if (hospital->pokemones[i] == NULL) {
 			fclose(archivo);
 			free(linea_leida);
-			free(hospital->pokemones);
-			free(hospital);
+			hospital_destruir(hospital);
 			return NULL;
 		}
 
-		cantidad_pokemon++;
-		cantidad_entrenadores++;
+		hospital->cantidad_entrenadores++;
+		hospital->cantidad_pokemon++;
 
 		pokemon_t **pokemones_aux =
 			realloc(hospital->pokemones,
-				(cantidad_pokemon + 1) * sizeof(char *));
+				(hospital->cantidad_pokemon + 1) * sizeof(char *));
 		if (pokemones_aux == NULL) {
 			fclose(archivo);
 			free(linea_leida);
@@ -142,9 +141,6 @@ hospital_t *hospital_crear_desde_archivo(const char *nombre_archivo)
 
 	fclose(archivo);
 	free(linea_leida);
-
-	hospital->cantidad_entrenadores = cantidad_entrenadores;
-	hospital->cantidad_pokemon = cantidad_pokemon;
 
 	ordenar_hospital(hospital);
 
@@ -212,6 +208,9 @@ pokemon_t *hospital_obtener_pokemon(hospital_t *hospital, size_t prioridad)
 
 void hospital_destruir(hospital_t *hospital)
 {
+	if(hospital == NULL)
+		return;
+	
 	for (size_t i = 0; i < hospital->cantidad_pokemon; i++) {
 		free(hospital->pokemones[i]);
 	}
