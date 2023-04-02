@@ -107,8 +107,8 @@ hospital_t *hospital_crear_desde_archivo(const char *nombre_archivo)
 	}
 
 	int i = 0;
-	size_t cantidad_pokemon = 0;
-	size_t cantidad_entrenadores = 0;
+	hospital->cantidad_entrenadores = 0;
+	hospital->cantidad_pokemon = 0;
 
 	while (leido == LINEA_LEIDA) {
 		hospital->pokemones[i] =
@@ -121,12 +121,12 @@ hospital_t *hospital_crear_desde_archivo(const char *nombre_archivo)
 			return NULL;
 		}
 
-		cantidad_pokemon++;
-		cantidad_entrenadores++;
+		hospital->cantidad_pokemon++;
+		hospital->cantidad_entrenadores++;
 
-		pokemon_t **pokemones_aux =
-			realloc(hospital->pokemones,
-				(cantidad_pokemon + 1) * sizeof(char *));
+		pokemon_t **pokemones_aux = realloc(
+			hospital->pokemones,
+			(hospital->cantidad_pokemon + 1) * sizeof(char *));
 		if (pokemones_aux == NULL) {
 			fclose(archivo);
 			free(linea_leida);
@@ -146,9 +146,6 @@ hospital_t *hospital_crear_desde_archivo(const char *nombre_archivo)
 
 	fclose(archivo);
 	free(linea_leida);
-
-	hospital->cantidad_entrenadores = cantidad_entrenadores;
-	hospital->cantidad_pokemon = cantidad_pokemon;
 
 	ordenar_hospital(hospital);
 
