@@ -1,5 +1,4 @@
 #include "tp1.h"
-
 #include "pokemon.h"
 #include <stddef.h>
 #include <stdio.h>
@@ -108,8 +107,8 @@ hospital_t *hospital_crear_desde_archivo(const char *nombre_archivo)
 	}
 
 	int i = 0;
-	hospital->cantidad_entrenadores = 0;
-	hospital->cantidad_pokemon = 0;
+	size_t cantidad_pokemon = 0;
+	size_t cantidad_entrenadores = 0;
 
 	while (leido == LINEA_LEIDA) {
 		hospital->pokemones[i] =
@@ -117,20 +116,26 @@ hospital_t *hospital_crear_desde_archivo(const char *nombre_archivo)
 		if (hospital->pokemones[i] == NULL) {
 			fclose(archivo);
 			free(linea_leida);
-			hospital_destruir(hospital);
+			free(hospital->pokemones);
+			free(hospital);
 			return NULL;
 		}
 
-		hospital->cantidad_entrenadores++;
-		hospital->cantidad_pokemon++;
+		cantidad_pokemon++;
+		cantidad_entrenadores++;
 
 		pokemon_t **pokemones_aux =
 			realloc(hospital->pokemones,
-				(hospital->cantidad_pokemon + 1) * sizeof(char *));
+				(cantidad_pokemon + 1) * sizeof(char *));
 		if (pokemones_aux == NULL) {
 			fclose(archivo);
 			free(linea_leida);
-			hospital_destruir(hospital);
+			for (size_t i = 0; i < hospital->cantidad_pokemon;
+			     i++) {
+				free(hospital->pokemones[i]);
+			}
+			free(hospital->pokemones);
+			free(hospital);
 			return NULL;
 		}
 		hospital->pokemones = pokemones_aux;
@@ -141,6 +146,9 @@ hospital_t *hospital_crear_desde_archivo(const char *nombre_archivo)
 
 	fclose(archivo);
 	free(linea_leida);
+
+	hospital->cantidad_entrenadores = cantidad_entrenadores;
+	hospital->cantidad_pokemon = cantidad_pokemon;
 
 	ordenar_hospital(hospital);
 
@@ -186,7 +194,11 @@ int hospital_aceptar_emergencias(hospital_t *hospital,
 				sizeof(char *));
 
 	if (pokemones_aux == NULL) {
-		hospital_destruir(hospital);
+		for (size_t i = 0; i < hospital->cantidad_pokemon; i++) {
+			free(hospital->pokemones[i]);
+		}
+		free(hospital->pokemones);
+		free(hospital);
 		return ERROR;
 	}
 	hospital->pokemones = pokemones_aux;
@@ -208,9 +220,6 @@ pokemon_t *hospital_obtener_pokemon(hospital_t *hospital, size_t prioridad)
 
 void hospital_destruir(hospital_t *hospital)
 {
-	if(hospital == NULL)
-		return;
-	
 	for (size_t i = 0; i < hospital->cantidad_pokemon; i++) {
 		free(hospital->pokemones[i]);
 	}
