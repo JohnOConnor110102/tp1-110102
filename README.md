@@ -29,37 +29,33 @@ En cuanto al desenvolvimiento del tp1, se modificaron y desarrollaron estructura
 
 Archivo `pokemon.c`:
 
-`pokemon_crear_desde_string` en primera instancia, verifica que el string pasado por parámetro sea válido (distinto de `NULL` y no vacío). A continuación reserva un bloque de espacio en memoria dinámica mediante `malloc` para `*poke_leido` (verificando que se reserve correctamente), a fin de poder guardar los datos leidos del string mediante `sscanf` en los correspondientes campos de `*poke_leido`, para finalmente devolver `*poke_leido`, en caso de que se hayan leido bien los datos, o en caso contrario liberar el espacio reservado en memoria mediante `free` y devolver `NULL` en señal de error. El siguiente esquema representa el manejo de memoria al reservar el espacio con `malloc`:
+`pokemon_crear_desde_string` devuelve `NULL` en caso de que el string pasado por parámetro sea `NULL` o este vacío , y caso contrario reserva un bloque de espacio en memoria dinámica, a fin de poder guardar los datos leidos del string. Luego devuelve los valores leidos en formato del struct `pokemon_t` en caso de que se hayan leido bien los datos, o en caso contrario libera el espacio reservado en memoria y devuelve `NULL` en señal de error. El siguiente esquema representa el manejo de memoria dentro de la función:
 
 ![Diagrama memoria pokemon_crear_desde_string](img/pokemon_crear_desde_string.jpeg)
 
-
-Luego, `pokemon_copiar` verifica que el `pokemon_t` pasado por parámetro sea válido (distinto de `NULL`). Reserva un bloque de espacio en memoria dinámica por `malloc` para `*nuevo_poke` (verificando que se reserve correctamente). A continuación copia los datos de cada uno de los campos de `*poke` en `*nuevo_poke` y por último devuelve `*nuevo_poke`. El siguiente esquema representa el manejo de memoria al reservar el espacio con `malloc`: 
+Por otro lado, `pokemon_copiar` devuelve `NULL` en caso de que el pokemon pasado por parámetro no sea valido, y en caso contrario copia los datos del `pokemon_t` pasado por parámetro cada uno de los campos de un nuevo pokemon, reservando primero un bloque de espacio en memoria dinámica para el mismo, y finalmente devuelve el nuevo pokemon. El siguiente esquema representa el manejo de memoria en la función: 
 
 ![Diagrama memoria pokemon_copiar](img/pokemon_copiar.jpeg)
 
 
-`pokemon_son_iguales`, verifica que ambos de los `pokemon_t` enviados por parámetro no sean `NULL`, devuelve `false` en caso de que alguno de los campos de `*pokemon1` sea igual al respectivo campo de `*pokemon2`, y `true` en caso contrario.
+`pokemon_son_iguales`, devuelve `NULL` si alguno de los parámetros es `NULL` y caso contrario, devuelve `false` si alguno de los campos del primer pokemon es distinto al respectivo campo del segundo, y `true` en caso contrario.
 
-`pokemon_nombre` verifica que el `pokemon_t` enviado por parámetro no sea `NULL` y devuelve el campo `pokemon->nombre`.
+`pokemon_nombre` devuelve `NULL` si el pokemon pasado por parámetro es `NULL` y devuelve el nombre del pokemon pasado por parámetro.
 
-`pokemon_entrenador` verifica que el `pokemon_t` enviado por parámetro no sea `NULL` y devuelve el campo `pokemon->nombre_entrenador`.
+`pokemon_entrenador` devuelve `NULL` si el pokemon pasado por parámetro es `NULL` y devuelve el entrenador del pokemon pasado por parámetro..
 
-`pokemon_salud` verifica que el `pokemon_t` enviado por parámetro no sea `NULL` y devuelve el campo `pokemon->salud`.
+`pokemon_salud` devuelve `NULL` si el pokemon pasado por parámetro es `NULL` y devuelve la salud del pokemon pasado por parámetro.
 
-`pokemon_id` verifica que el `pokemon_t` enviado por parámetro no sea `NULL` y devuelve el campo `pokemon->id`.
+`pokemon_id` devuelve `NULL` si el pokemon pasado por parámetro es `NULL` y devuelve el id del pokemon pasado por parámetro.
 
-`pokemon_destruir` verifica que el `pokemon_t` enviado por parámetro no sea `NULL` y libera el bloque de espacio reservado en memoria para el mismo mediante `free`.
+`pokemon_destruir` devuelve `NULL` si el pokemon pasado por parámetro es `NULL` y libera el bloque de espacio reservado en memoria para el mismo.
 
 
 Archivo `tp1.c`:
 
-`hospital_crear_desde_archivo` Comienza verificando que el archivo no sea `NULL` en cuyo caso devuelve dicho valor. Luego abre el archivo pasado por parámetro mediante `fopen` en modo lectura, también verificando que se abra correctamente. Luego reserva un bloque de espacio en memoria dinámica mediante `malloc` para `*hospital`, verificando si se reserva correctamente. Mismo hace para `hospital->pokemones`, y para `*linea_leida` con sus respectivos tamaños necesarios. 
-En las verificaciones realizadas, el algoritmo se encarga de liberar los espacios en memoria correspondientes. Guarda en `*linea_leida` la linea del archivo leida mediante `fscanf`, guardando el valor devuelto por la función en `leido`, variable con la cual verifica que el archivo sea válido, no vacío y el valor de EOF. 
-Dentro del `while` se crean e inicializan los diferentes índices del vector `hospital->pokemones` utilizando la función `pokemon_crear_desde_string`, y actulizan los valores correspondientes del `hospital` para reflejar los cambios de pokemones y entrenadores (asumiendo que los entrenadores no se repiten, aunque tengan el mismo nombre). 
-A continuación, se aumenta adecuadamente el tamaño del espacio en memoria reservado para `hospital->pokemones` mediante `realloc`, guardando el resultado del mismo en `**pokemones_aux` para así no perder la dirección de memoria del vector original en caso de que no se haya podida realizar el `realloc` correctamente. Realiza las verificaciones necesarias y luego iguala la dirección de memoria de `hospital_pokemones` a la de `pokemones_aux`.
+`hospital_crear_desde_archivo` devuelve `NULL` en caso de que el archivo pasado por parámetro sea invalido o si ocurre algún tipo de error durante la ejecución de la función. En principio la función lee el archivo guardando los datos leidos por cada linea en cada indice del vector de pokemones. En este proceso reservan bloques de espacio en memoria dinámica para el hospital y cada pokemon del vector de pokemones. En las verificaciones realizadas, el algoritmo se encarga de liberar los espacios en memoria correspondientes. Además se actulizan los valores correspondientes del `hospital` para reflejar los cambios de pokemones y entrenadores (asumiendo que los entrenadores no se repiten, aunque tengan el mismo nombre). 
 
-Con el siguiente algoritmo, una vez ya leido completamente el archivo, fuera del `while` se ordena mediante _burbujeo_ el vector `hospital->pokemones` creado con anterioridad, tomando como criterio el campo `salud` dentro de `hospital->pokemones`, de menor a mayor. Durante este proceso, sea realizan liberaciones de espacio de memoria correspondientes, al invocar la función `pokemon_copiar`, evitando así pérdidas de memoria.
+Luego una vez ya leidos todos los pokemones, hace un llamado a la función `void ordenar_hospital`, donde se ordena mediante _burbujeo_ el vector creado con anterioridad, tomando como criterio el nivel de salud, de menor a mayor. Durante este proceso, sea realizan liberaciones de espacio de memoria correspondientes, evitando así pérdidas de memoria.
 
 ```c
 bool esta_ordenado = false;
@@ -88,13 +84,13 @@ El respectivo diagrama de memoria:
 ![Diagrama memoria hospital_crear_desde_archivo.jpeg](img/hospital_crear_desde_archivo.jpeg)
 
 
-`hospital_cantidad_pokemones` verifica que el `hospital_t` pasado por parámetro sea válido, y devuelve `hospital->cantidad_pokemon`, la cantidad de pokemones.
+`hospital_cantidad_pokemones` devuelve `0` en caso de que el hospital pasado por parámetro sea `NULL`, y devuelve la cantidad de pokemones en el hospital.
 
-`hospital_a_cada_pokemon` verifica que los parámetros sean válidos, y aplica a cada indice del vector `hospital->pokemones` la función pasada por parámetro, siempre y cuando esta devuelva `true` y todavía haya pokemones en dicho vector. Devuelve `contador`, la cantidad de veces que se aplicó la función, independientemente del resultado.
+`hospital_a_cada_pokemon` devuelve `0` en caso de que los parámetros sean `NULL`, y aplica a cada indice del vector de pokemones la función pasada por parámetro, siempre y cuando esta devuelva `true` y todavía haya pokemones en dicho vector. Finalmente devuelve la cantidad de veces que se aplicó la función, independientemente del resultado.
 
-`hospital_aceptar_emergencias` verifica que los parámetros sean válidos, y luego aumenta el bloque de espacio en memoria dinámica reservado para `hospital->pokemones` mediante `realloc`, guardando el resultado de la función en `**pokemones_aux`, para no perder la dirección de memoria original en caso de que falle el `realloc`, y en caso contrario, iguala la dirección de memoria de `hospital_pokemones` a la de `pokemones_aux`. Luego dentro del `for`, se desarrolla el código encargado de isnertar ordenadamente los pokemones de `pokemones_ambulancia` en `hospital->pokemones`, (hablando de los punteros a direcciones de memoria).
+`hospital_aceptar_emergencias` devuelve `ERROR` en caso de que los parámetros sean `NULL`, y luego aumenta el bloque de espacio en memoria dinámica reservado para el vector de pokemones mediante `realloc`, guardando el resultado de la función en un vector auxiliar, para no perder la dirección de memoria original en caso de que falle el `realloc`, y en caso contrario, iguala la dirección de memoria del vector original a la del auxiliar. Luego, se invoca a la función `insertar_pokemones_ordenadamente` para ingresar los pokemones en el vector de la ambulancia al hospital, ordenadamente tomando en cuenta la salud de los pokemones, de menor a mayor. Finalmente devuelve EXITO si se pudieron insertar los pokemones.
 
-Más específicamente, este algoritmo determina el índice a insertar el puntero del correspondiente pokemon de `pokemones_ambulancia`, según su nivel de salud comparado con aquellos en `hospital->pokemones`.
+Más específicamente, dentro de la función `insertar_pokemones_ordenadamente`, este algoritmo determina el índice a insertar el puntero del correspondiente pokemon de la ambulandia, según su nivel de salud comparado con aquellos en el hospital.
 
 ```c
 int indice_a_insertar = 0;
@@ -110,7 +106,7 @@ while (j < hospital->cantidad_pokemon && !indice_determinado) {
     j++;
 }
 ```
-El siguente mueve los punteros de `hospital->pokemones`, posteriores al indice a insertar, un indice después en el vector, haciendo lugar para el pokemon a insertar.
+El siguente mueve los punteros de los pokemones en el vector del hospital, posteriores al indice a insertar, un indice después en el vector, haciendo lugar para el pokemon a insertar.
 
 ```c
 for (size_t k = hospital->cantidad_pokemon;
@@ -119,7 +115,7 @@ for (size_t k = hospital->cantidad_pokemon;
 }
 ```
 
-Y finalmente este algoritmo inserta el pokemon correspondiente de `pokemones_ambulancia` en el indice indicado de `hospital->pokemones`, actualizando la cantidad de pokemones en el primero de estos.
+Y finalmente este algoritmo inserta el pokemon correspondiente de la ambulancia en el indice indicado de l vector del hospital, actualizando la cantidad de pokemones en el hospital.
 
 ```c
 hospital->pokemones[indice_a_insertar] =
@@ -132,7 +128,7 @@ A continuación el diagrama de memoria correspondiente a esta función.
 ![Diagrama memoria hospital_aceptar_emergencias](img/hospital_aceptar_emergencias.jpeg)
 
 
-Por último, `hospital_destruir`, asumiendo que el parámetro es válido, libera el espacio en memoria reservado para todos los indices de `hospital->pokemones`, para dicha estructura, y para `hospital` en sí.
+Por último, `hospital_destruir`, no realiza ninguna función en caso de que el hospital pasado por parámetro sea `NULL`, y caso contrario libera el espacio en memoria reservado para todos los indices del vector de pokemones en el hospital, para el vector de pokemones en sí y para el mismo hospital.
 
 
 ## Respuestas a las preguntas teóricas
