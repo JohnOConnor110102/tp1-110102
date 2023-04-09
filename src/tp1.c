@@ -7,9 +7,11 @@
 
 #define FORMATO_LECTURA_ARCHIVO "%s"
 #define FIN_DE_LINEA "\n"
+#define RETURN_FUNCION 1
 
 const int LINEA_LEIDA = 1;
 const size_t MAX_CARACTERES_LINEA = 30;
+const int HOSPITAL_VACIO = 0;
 
 struct _hospital_pkm_t {
 	pokemon_t **pokemones;
@@ -21,6 +23,9 @@ void insertar_pokemones_ordenadamente(hospital_t *hospital,
 				      pokemon_t **pokemones_ambulancia,
 				      size_t cant_pokes_ambulancia)
 {
+	if (hospital == NULL || pokemones_ambulancia == NULL)
+		return;
+
 	for (size_t i = 0; i < cant_pokes_ambulancia; i++) {
 		int indice_a_insertar = 0;
 		int j = 0;
@@ -48,6 +53,9 @@ void insertar_pokemones_ordenadamente(hospital_t *hospital,
 
 void ordenar_hospital(hospital_t *hospital)
 {
+	if (hospital == NULL)
+		return;
+
 	bool esta_ordenado = false;
 	while (!esta_ordenado) {
 		esta_ordenado = true;
@@ -55,18 +63,62 @@ void ordenar_hospital(hospital_t *hospital)
 			if (pokemon_salud(hospital->pokemones[i + 1]) <
 			    pokemon_salud(hospital->pokemones[i])) {
 				esta_ordenado = false;
-				pokemon_t *aux =
-					pokemon_copiar(hospital->pokemones[i]);
-				free(hospital->pokemones[i]);
-				hospital->pokemones[i] = pokemon_copiar(
-					hospital->pokemones[i + 1]);
-				free(hospital->pokemones[i + 1]);
-				hospital->pokemones[i + 1] =
-					pokemon_copiar(aux);
-				free(aux);
+				pokemon_t *aux = hospital->pokemones[i];
+				hospital->pokemones[i] =
+					hospital->pokemones[i + 1];
+				hospital->pokemones[i + 1] = aux;
 			}
 		}
 	}
+}
+
+void aborto_crear_hospital(FILE *archivo, hospital_t *hospital)
+{
+	if (archivo == NULL || hospital == NULL)
+		return;
+
+	fclose(archivo);
+	hospital_destruir(hospital);
+}
+
+bool ingresar_pokemones_desde_archivo(FILE *archivo, hospital_t *hospital)
+{
+	if (archivo == NULL || hospital == NULL)
+		return false;
+
+	char linea_leida[MAX_CARACTERES_LINEA];
+	int leido = fscanf(archivo, FORMATO_LECTURA_ARCHIVO, linea_leida);
+	if (leido != LINEA_LEIDA) {
+		aborto_crear_hospital(archivo, hospital);
+		return false;
+	}
+
+	int i = 0;
+	while (leido == LINEA_LEIDA) {
+		if (hospital->cantidad_pokemon > HOSPITAL_VACIO) {
+			pokemon_t **pokemones_aux =
+				realloc(hospital->pokemones,
+					(hospital->cantidad_pokemon + 1) *
+						sizeof(pokemon_t *));
+			if (pokemones_aux == NULL) {
+				aborto_crear_hospital(archivo, hospital);
+				return false;
+			}
+			hospital->pokemones = pokemones_aux;
+		}
+		hospital->pokemones[i] =
+			pokemon_crear_desde_string(linea_leida);
+		if (hospital->pokemones[i] == NULL) {
+			aborto_crear_hospital(archivo, hospital);
+			return false;
+		}
+		hospital->cantidad_pokemon++;
+		hospital->cantidad_entrenadores++;
+
+		i++;
+		leido = fscanf(archivo, FORMATO_LECTURA_ARCHIVO, linea_leida);
+	}
+	return true;
 }
 
 hospital_t *hospital_crear_desde_archivo(const char *nombre_archivo)
@@ -83,70 +135,20 @@ hospital_t *hospital_crear_desde_archivo(const char *nombre_archivo)
 		fclose(archivo);
 		return NULL;
 	}
-	hospital->pokemones = malloc(sizeof(char *));
-	if (hospital->pokemones == NULL) {
-		fclose(archivo);
-		free(hospital);
-		return NULL;
-	}
-
-	char *linea_leida = malloc(MAX_CARACTERES_LINEA * sizeof(char));
-	if (linea_leida == NULL) {
-		fclose(archivo);
-		free(hospital->pokemones);
-		free(hospital);
-		return NULL;
-	}
-	int leido = fscanf(archivo, FORMATO_LECTURA_ARCHIVO, linea_leida);
-	if (leido != LINEA_LEIDA) {
-		fclose(archivo);
-		free(linea_leida);
-		free(hospital->pokemones);
-		free(hospital);
-		return NULL;
-	}
-
-	int i = 0;
 	hospital->cantidad_entrenadores = 0;
 	hospital->cantidad_pokemon = 0;
 
-	while (leido == LINEA_LEIDA) {
-		hospital->pokemones[i] =
-			pokemon_crear_desde_string(linea_leida);
-		if (hospital->pokemones[i] == NULL) {
-			fclose(archivo);
-			free(linea_leida);
-			free(hospital->pokemones);
-			free(hospital);
-			return NULL;
-		}
-
-		hospital->cantidad_pokemon++;
-		hospital->cantidad_entrenadores++;
-
-		pokemon_t **pokemones_aux = realloc(
-			hospital->pokemones,
-			(hospital->cantidad_pokemon + 1) * sizeof(char *));
-		if (pokemones_aux == NULL) {
-			fclose(archivo);
-			free(linea_leida);
-			for (size_t i = 0; i < hospital->cantidad_pokemon;
-			     i++) {
-				free(hospital->pokemones[i]);
-			}
-			free(hospital->pokemones);
-			free(hospital);
-			return NULL;
-		}
-		hospital->pokemones = pokemones_aux;
-
-		i++;
-		leido = fscanf(archivo, FORMATO_LECTURA_ARCHIVO, linea_leida);
+	hospital->pokemones = malloc(sizeof(pokemon_t *));
+	if (hospital->pokemones == NULL) {
+		aborto_crear_hospital(archivo, hospital);
+		return NULL;
 	}
 
-	fclose(archivo);
-	free(linea_leida);
+	bool estado = ingresar_pokemones_desde_archivo(archivo, hospital);
+	if (estado == false)
+		return NULL;
 
+	fclose(archivo);
 	ordenar_hospital(hospital);
 
 	return hospital;
@@ -191,11 +193,7 @@ int hospital_aceptar_emergencias(hospital_t *hospital,
 				sizeof(char *));
 
 	if (pokemones_aux == NULL) {
-		for (size_t i = 0; i < hospital->cantidad_pokemon; i++) {
-			free(hospital->pokemones[i]);
-		}
-		free(hospital->pokemones);
-		free(hospital);
+		hospital_destruir(hospital);
 		return ERROR;
 	}
 	hospital->pokemones = pokemones_aux;
@@ -207,12 +205,10 @@ int hospital_aceptar_emergencias(hospital_t *hospital,
 
 pokemon_t *hospital_obtener_pokemon(hospital_t *hospital, size_t prioridad)
 {
-	for (int i = 0; i < hospital->cantidad_pokemon; i++) {
-		if (i == prioridad)
-			return hospital->pokemones[i];
-	}
+	if (hospital == NULL || prioridad >= hospital->cantidad_pokemon)
+		return NULL;
 
-	return NULL;
+	return hospital->pokemones[prioridad];
 }
 
 void hospital_destruir(hospital_t *hospital)

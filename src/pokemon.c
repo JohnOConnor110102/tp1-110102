@@ -48,7 +48,7 @@ pokemon_t *pokemon_copiar(pokemon_t *poke)
 bool pokemon_son_iguales(pokemon_t *pokemon1, pokemon_t *pokemon2)
 {
 	if (pokemon1 == NULL || pokemon2 == NULL)
-		return NULL;
+		return false;
 
 	if (pokemon1->id != pokemon2->id ||
 	    pokemon1->salud != pokemon2->salud ||
